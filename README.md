@@ -59,7 +59,7 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:CaiqueLudemann/next-market-place.git
    cd next-marketplace
    ```
 
@@ -126,10 +126,7 @@ next-marketplace/
 │           └── index.test.ts
 │
 ├── docs/                      # Documentation
-│   ├── INSTRUCTIONS.md       # AI-friendly development guide
-│   ├── ARCHITECTURE.md       # Architecture overview
-│   ├── TDD.md                # Testing strategy
-│   └── CONTRIBUTING.md       # Contribution guidelines
+│   └── INSTRUCTIONS.md       # AI-friendly development guide
 │
 ├── .editorconfig             # Editor configuration
 ├── .prettierrc.json          # Prettier configuration
@@ -191,7 +188,7 @@ pnpm e2e:ui             # Run E2E tests with UI
 2. **Green** - Write minimal code to make the test pass
 3. **Refactor** - Improve the code while keeping tests green
 
-See [docs/TDD.md](docs/TDD.md) for detailed guidelines.
+See [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for detailed guidelines.
 
 ### 2. Branch Strategy
 
@@ -320,8 +317,8 @@ pnpm nx type-check client
 
 ## 👥 Contributing
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines
-2. Follow the TDD workflow (see [docs/TDD.md](docs/TDD.md))
+1. Read [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) for detailed guidelines
+2. Follow the TDD workflow (mandatory)
 3. Ensure all tests pass before submitting PR
 4. Follow the commit message convention
 5. Update documentation as needed
@@ -353,10 +350,7 @@ The project includes VSCode workspace settings (`.vscode/settings.json`) that:
 
 ## 📚 Documentation
 
-- [Architecture Overview](docs/ARCHITECTURE.md)
-- [TDD Workflow](docs/TDD.md)
 - [AI Development Guide](docs/INSTRUCTIONS.md)
-- [Contributing Guide](CONTRIBUTING.md)
 
 ## 📝 License
 

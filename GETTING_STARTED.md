@@ -200,9 +200,7 @@ VSCode settings are already configured in `.vscode/settings.json`. Just open the
 
 1. **Read the documentation**
    - [README.md](README.md) - Full project overview
-   - [docs/TDD.md](docs/TDD.md) - TDD guide (mandatory reading!)
-   - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture
-   - [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) - Development guide
+   - [docs/INSTRUCTIONS.md](docs/INSTRUCTIONS.md) - Development guide with TDD workflow
 
 2. **Explore the codebase**
    - Check out the example components in `apps/client/src/app/`
