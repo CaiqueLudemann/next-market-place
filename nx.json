@@ -1,0 +1,119 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+
+  // Extends the base Nx preset for optimal defaults
+  "extends": "nx/presets/npm.json",
+
+  // Affected command configuration - determines what is considered "affected" by changes
+  "affected": {
+    // Default base branch for comparison (for affected commands)
+    "defaultBase": "main"
+  },
+
+  // Task runner configuration for parallel execution and caching
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        // Maximum number of parallel tasks (adjust based on your CPU cores)
+        "parallel": 3,
+        // Enable caching for faster rebuilds
+        "cacheableOperations": ["build", "test", "lint", "type-check", "e2e"],
+        // Cache directory location
+        "cacheDirectory": ".nx/cache"
+      }
+    }
+  },
+
+  // Target defaults - shared configuration for common tasks across all projects
+  "targetDefaults": {
+    "build": {
+      // Build tasks depend on dependencies being built first
+      "dependsOn": ["^build"],
+      // Build outputs that should be cached
+      "outputs": ["{projectRoot}/dist", "{projectRoot}/.next"],
+      // Inputs that affect the build (if these change, rebuild is needed)
+      "inputs": ["production", "^production"]
+    },
+    "test": {
+      // Test inputs - test files and source files
+      "inputs": ["default", "^production", "{workspaceRoot}/vitest.config.ts"],
+      // Cache test results
+      "cache": true
+    },
+    "test:watch": {
+      // Watch mode should not be cached
+      "cache": false
+    },
+    "lint": {
+      // Lint depends on ESLint configs
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/eslint.config.js"],
+      // Cache lint results
+      "cache": true
+    },
+    "type-check": {
+      // Type checking inputs
+      "inputs": ["default", "^production", "{workspaceRoot}/tsconfig.base.json"],
+      // Cache type-check results
+      "cache": true
+    },
+    "e2e": {
+      // E2E tests depend on the app being built
+      "dependsOn": ["build"],
+      // Don't cache E2E tests by default (they test runtime behavior)
+      "cache": false,
+      "inputs": ["default", "^production"]
+    }
+  },
+
+  // Named inputs - reusable file patterns for task configuration
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "production": [
+      "default",
+      // Exclude test files from production builds
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/eslint.config.js",
+      // Exclude test directories
+      "!{projectRoot}/tests/**/*",
+      "!{projectRoot}/e2e/**/*"
+    ],
+    "sharedGlobals": [
+      // Root configuration files that affect all projects
+      "{workspaceRoot}/tsconfig.base.json",
+      "{workspaceRoot}/.gitignore"
+    ]
+  },
+
+  // Plugins for Nx to infer tasks automatically
+  "plugins": [
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "startTargetName": "start"
+      }
+    },
+    {
+      "plugin": "@nx/playwright/plugin",
+      "options": {
+        "targetName": "e2e"
+      }
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    }
+  ],
+
+  // Nx Cloud (optional) - can be enabled later for distributed caching
+  "nxCloudAccessToken": null,
+
+  // Default project (optional)
+  "defaultProject": "client"
+}

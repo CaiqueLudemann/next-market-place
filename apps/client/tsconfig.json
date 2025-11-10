@@ -1,0 +1,75 @@
+{
+  // Extends the base TypeScript configuration from the monorepo root
+  "extends": "../../tsconfig.base.json",
+
+  "compilerOptions": {
+    // Enable type definitions for DOM APIs (required for React/Next.js)
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+
+    // Allow JavaScript files to be compiled (useful for gradual migration)
+    "allowJs": true,
+
+    // Skip type checking of all declaration files (*.d.ts) for faster compilation
+    "skipLibCheck": true,
+
+    // Enable all strict type-checking options
+    "strict": true,
+
+    // Do not emit output (Next.js handles the build process)
+    "noEmit": true,
+
+    // Enable interoperability between CommonJS and ES Modules
+    "esModuleInterop": true,
+
+    // Use Bundler module resolution (recommended for Next.js 13+)
+    "moduleResolution": "bundler",
+
+    // Allow importing JSON modules
+    "resolveJsonModule": true,
+
+    // Allow importing TypeScript files with .ts extension (Next.js specific)
+    "allowImportingTsExtensions": true,
+
+    // Ensure each file can be transpiled independently (required for build tools)
+    "isolatedModules": true,
+
+    // Preserve JSX syntax (Next.js will handle transformation)
+    "jsx": "preserve",
+
+    // Enable incremental compilation for faster rebuilds
+    "incremental": true,
+
+    // Module system for the compiled output
+    "module": "esnext",
+
+    // Specify plugin configurations for Next.js
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+
+    // Path aliases for cleaner imports within the app
+    "paths": {
+      "@/*": ["./src/*"],
+      "@marketplace/database": ["../../packages/database/src/index.ts"],
+      "@marketplace/utils": ["../../packages/utils/src/index.ts"]
+    }
+  },
+
+  // Files and directories to include in compilation
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+
+  // Files and directories to exclude from compilation
+  "exclude": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "e2e",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
+}

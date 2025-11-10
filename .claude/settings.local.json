@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(pnpm install:*)",
+      "Bash(chmod:*)",
+      "Bash(pnpm exec playwright:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm nx test:*)",
+      "Bash(pnpm type-check:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

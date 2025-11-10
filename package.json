@@ -1,0 +1,43 @@
+{
+  "name": "next-marketplace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A production-ready white-label marketplace monorepo",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.20.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "nx run-many -t dev --parallel=3",
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "test:watch": "nx run-many -t test:watch",
+    "test:e2e": "nx run client:e2e",
+    "lint": "nx run-many -t lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "type-check": "nx run-many -t type-check",
+    "prepare": "husky",
+    "affected:test": "nx affected -t test",
+    "affected:build": "nx affected -t build",
+    "affected:lint": "nx affected -t lint"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.0",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@nx/eslint": "^20.4.2",
+    "@nx/js": "^20.4.2",
+    "@nx/next": "^20.4.2",
+    "@nx/playwright": "^20.4.2",
+    "@nx/react": "^20.4.2",
+    "@nx/workspace": "^20.4.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "nx": "^20.4.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  }
+}

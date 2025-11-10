@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+
+  "_comment_printWidth": "Wrap lines that exceed this length",
+  "printWidth": 100,
+
+  "_comment_tabWidth": "Number of spaces per indentation level",
+  "tabWidth": 2,
+
+  "_comment_useTabs": "Use spaces instead of tabs for indentation",
+  "useTabs": false,
+
+  "_comment_semi": "Add semicolons at the end of statements",
+  "semi": false,
+
+  "_comment_singleQuote": "Use single quotes instead of double quotes",
+  "singleQuote": true,
+
+  "_comment_quoteProps": "Only add quotes around object properties when necessary",
+  "quoteProps": "as-needed",
+
+  "_comment_jsxSingleQuote": "Use single quotes in JSX",
+  "jsxSingleQuote": false,
+
+  "_comment_trailingComma": "Add trailing commas wherever possible (ES5: objects, arrays, etc.)",
+  "trailingComma": "es5",
+
+  "_comment_bracketSpacing": "Print spaces between brackets in object literals",
+  "bracketSpacing": true,
+
+  "_comment_bracketSameLine": "Put the `>` of a multi-line HTML element at the end of the last line",
+  "bracketSameLine": false,
+
+  "_comment_arrowParens": "Always include parentheses around arrow function parameters",
+  "arrowParens": "always",
+
+  "_comment_proseWrap": "Wrap markdown text as-is (don't auto-wrap)",
+  "proseWrap": "preserve",
+
+  "_comment_htmlWhitespaceSensitivity": "Respect whitespace in HTML",
+  "htmlWhitespaceSensitivity": "css",
+
+  "_comment_endOfLine": "Use line feed only (\\n) for line endings",
+  "endOfLine": "lf",
+
+  "_comment_embeddedLanguageFormatting": "Format embedded code (like CSS in JS)",
+  "embeddedLanguageFormatting": "auto",
+
+  "_comment_singleAttributePerLine": "Enforce single attribute per line in HTML/JSX when multiline",
+  "singleAttributePerLine": false
+}

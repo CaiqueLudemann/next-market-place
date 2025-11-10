@@ -1,0 +1,8 @@
+# pnpm workspace configuration
+# Defines which directories contain packages in this monorepo
+
+packages:
+  # Application packages (Next.js apps, etc.)
+  - 'apps/*'
+  # Shared packages (utilities, UI components, configs)
+  - 'packages/*'
