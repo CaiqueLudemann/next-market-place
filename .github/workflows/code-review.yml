@@ -1,0 +1,97 @@
+name: Claude Code Review
+
+# Trigger on PR events to main branch
+# Only runs when PR is marked ready for review (not on draft PRs to save costs)
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, ready_for_review]
+
+# Only allow one review workflow per PR at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+
+    # Skip draft PRs and forks to reduce costs and improve security
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      # Required to post comments on PRs
+      pull-requests: write
+      # Required to read PR files
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Only fetch the PR changes (not full history) to reduce context size
+          fetch-depth: 1
+          # Checkout the PR head
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          # Fetch base branch for comparison
+          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+
+          # Get only changed files (not full diff)
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+
+          # Count changed files
+          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
+
+          # Limit to first 30 files if PR is too large (cost control)
+          if [ "$FILE_COUNT" -gt 30 ]; then
+            echo "⚠️ PR has $FILE_COUNT changed files. Reviewing only first 30 files to control costs."
+            CHANGED_FILES=$(echo "$CHANGED_FILES" | head -30)
+          fi
+
+          # Create a compact list for review
+          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Anthropic API key for Claude
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+          # GitHub token for posting comments
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Use Sonnet (cost-effective model) instead of Opus
+          model: claude-sonnet-3-5-20241022
+
+          # Limit response tokens to control output costs
+          max_tokens: 4000
+
+          # Focus review on changed files only
+          files: ${{ steps.changed-files.outputs.changed_files }}
+
+          # Concise prompt to minimize input tokens
+          prompt: |
+            Review this PR following CLAUDE.md guidelines. Focus on:
+            - Critical bugs and security issues
+            - TypeScript type safety violations
+            - Missing or inadequate tests (TDD compliance)
+            - Code quality issues (not style - linters handle that)
+
+            Be concise. Only report issues that matter. Skip minor suggestions.
+
+      - name: Summary
+        run: |
+          FILE_COUNT=${{ steps.changed-files.outputs.file_count }}
+          echo "✅ Claude code review completed for PR #${{ github.event.pull_request.number }}"
+          echo "📊 Reviewed $FILE_COUNT changed file(s)"
+          echo "💰 Cost-optimized: Using Sonnet model with focused review"
