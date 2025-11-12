@@ -21,9 +21,9 @@
     // Emit files
     "noEmit": false,
 
-    // Module system
-    "module": "ESNext",
-    "moduleResolution": "bundler"
+    // Module system - CommonJS for Node.js compatibility
+    "module": "CommonJS",
+    "moduleResolution": "node"
   },
 
   "include": ["src/**/*"],
