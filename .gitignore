@@ -70,3 +70,6 @@ next-env.d.ts
 
 # Misc
 .turbo
+
+# Claude
+.claude/settings.local.json
