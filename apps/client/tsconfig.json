@@ -49,6 +49,9 @@
       }
     ],
 
+    // Base URL for resolving non-relative module names
+    "baseUrl": ".",
+
     // Path aliases for cleaner imports within the app
     "paths": {
       "@/*": ["./src/*"],
