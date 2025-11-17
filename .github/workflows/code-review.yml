@@ -48,50 +48,6 @@ jobs:
           restore-keys: |
             claude-code-${{ runner.os }}-
 
-      - name: Get changed files
-        id: changed-files
-        run: |
-          # Fetch base branch for comparison
-          git fetch origin ${{ github.event.pull_request.base.ref }}
-
-          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-
-          # Check if merge base exists between branches
-          if git merge-base "$BASE_REF" HEAD >/dev/null 2>&1; then
-            echo "✓ Merge base found, comparing changes..."
-            CHANGED_FILES=$(git diff --name-only "$BASE_REF"...HEAD)
-          else
-            echo "⚠️ No merge base found. Using two-dot diff as fallback."
-            # Fallback: use two-dot diff (all changes in HEAD compared to base)
-            CHANGED_FILES=$(git diff --name-only "$BASE_REF"..HEAD 2>/dev/null || git ls-files)
-          fi
-
-          # Filter out empty lines and ensure we have files
-          CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v '^$' | grep '.' || echo "")
-
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "⚠️ No changed files detected. Reviewing all source files."
-            CHANGED_FILES=$(git ls-files '*.ts' '*.tsx' '*.js' '*.jsx' | head -20)
-          fi
-
-          # Count changed files
-          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
-
-          # Limit to first 20 files if PR is too large (cost control)
-          if [ "$FILE_COUNT" -gt 20 ]; then
-            echo "⚠️ PR has $FILE_COUNT changed files. Reviewing only first 20 files to control costs."
-            CHANGED_FILES=$(echo "$CHANGED_FILES" | head -20)
-          fi
-
-          # Create a compact list for review
-          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          echo "📋 Files to review ($FILE_COUNT total):"
-          echo "$CHANGED_FILES" | head -10
-
       - name: Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
@@ -99,26 +55,24 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-          # Use sticky comment (updates same comment instead of creating new ones)
-          use_sticky_comment: true
-
-          # Concise prompt to minimize input tokens and focus review
+          # Focused prompt for PR review
           prompt: |
-            Review this PR following CLAUDE.md guidelines in the repository. Focus ONLY on:
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request following CLAUDE.md guidelines in the repository.
+
+            Focus your review on:
             - Critical bugs and security vulnerabilities
             - TypeScript type safety violations (any usage, missing types)
             - Missing or inadequate tests (TDD compliance is mandatory)
             - Significant code quality issues
+            - Performance concerns
 
-            Skip: formatting, minor suggestions, style issues (linters handle those).
-            Be concise. Only report issues that truly matter.
+            Skip: formatting, import ordering, minor style issues (linters handle those).
 
-            Files changed in this PR:
-            ${{ steps.changed-files.outputs.changed_files }}
+            Use `gh pr comment` to post your review as a comment on the PR.
+            Be concise and focus only on issues that truly matter.
 
-      - name: Summary
-        run: |
-          FILE_COUNT=${{ steps.changed-files.outputs.file_count }}
-          echo "✅ Claude code review completed for PR #${{ github.event.pull_request.number }}"
-          echo "📊 Reviewed $FILE_COUNT changed file(s)"
-          echo "💰 Cost-optimized: Using Sonnet model with focused review"
+          # Allow Claude to use gh CLI for PR operations
+          claude_args: '--allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
