@@ -32,66 +32,53 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Only fetch the PR changes (not full history) to reduce context size
           fetch-depth: 1
           # Checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Get changed files
-        id: changed-files
-        run: |
-          # Fetch base branch for comparison
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
-
-          # Get only changed files (not full diff)
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
-
-          # Count changed files
-          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
-
-          # Limit to first 30 files if PR is too large (cost control)
-          if [ "$FILE_COUNT" -gt 30 ]; then
-            echo "⚠️ PR has $FILE_COUNT changed files. Reviewing only first 30 files to control costs."
-            CHANGED_FILES=$(echo "$CHANGED_FILES" | head -30)
-          fi
-
-          # Create a compact list for review
-          echo "changed_files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Cache Claude Code dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.cache/bun
+            ~/.local/share/claude-code
+          key: claude-code-${{ runner.os }}-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            claude-code-${{ runner.os }}-
 
       - name: Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
-          # Anthropic API key for Claude
+          # Authentication
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-
-          # GitHub token for posting comments
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-          # Use Sonnet (cost-effective model) instead of Opus
-          model: claude-sonnet-3-5-20241022
-
-          # Limit response tokens to control output costs
-          max_tokens: 4000
-
-          # Focus review on changed files only
-          files: ${{ steps.changed-files.outputs.changed_files }}
-
-          # Concise prompt to minimize input tokens
+          # Focused prompt for PR review
           prompt: |
-            Review this PR following CLAUDE.md guidelines. Focus on:
-            - Critical bugs and security issues
-            - TypeScript type safety violations
-            - Missing or inadequate tests (TDD compliance)
-            - Code quality issues (not style - linters handle that)
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Be concise. Only report issues that matter. Skip minor suggestions.
+            Review this pull request following CLAUDE.md guidelines in the repository.
 
-      - name: Summary
-        run: |
-          FILE_COUNT=${{ steps.changed-files.outputs.file_count }}
-          echo "✅ Claude code review completed for PR #${{ github.event.pull_request.number }}"
-          echo "📊 Reviewed $FILE_COUNT changed file(s)"
-          echo "💰 Cost-optimized: Using Sonnet model with focused review"
+            Focus your review on:
+            - Critical bugs and security vulnerabilities
+            - TypeScript type safety violations (any usage, missing types)
+            - Missing or inadequate tests (TDD compliance is mandatory)
+            - Significant code quality issues
+            - Performance concerns
+
+            Skip: formatting, import ordering, minor style issues (linters handle those).
+
+            Use `gh pr comment` to post your review as a comment on the PR.
+
+            At the end of your review comment, add a footer with:
+            - Model used: claude-3-5-haiku-20241022
+            - Estimated cost (calculate based on tokens used)
+
+            Be concise and focus only on issues that truly matter.
+
+          # Allow Claude to use gh CLI for PR operations
+          claude_args: |
+            --model claude-3-5-haiku-20241022
+            --allowedTools Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)
