@@ -1,10 +1,12 @@
+import { capitalize } from '@marketplace/utils'
+
 export default function ShopLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       {/* Shop Header - You'll implement this */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">Marketplace</h1>
+          <h1 className="text-2xl font-bold">{capitalize('marketplace')}</h1>
         </div>
       </header>
 

@@ -1,0 +1,84 @@
+name: Claude Code Review
+
+# Trigger on PR events to main branch
+# Only runs when PR is marked ready for review (not on draft PRs to save costs)
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, ready_for_review]
+
+# Only allow one review workflow per PR at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  claude-review:
+    name: Claude Code Review
+    runs-on: ubuntu-latest
+
+    # Skip draft PRs and forks to reduce costs and improve security
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    permissions:
+      # Required to post comments on PRs
+      pull-requests: write
+      # Required to read PR files
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          # Checkout the PR head
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Cache Claude Code dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.cache/bun
+            ~/.local/share/claude-code
+          key: claude-code-${{ runner.os }}-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            claude-code-${{ runner.os }}-
+
+      - name: Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          # Authentication
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Focused prompt for PR review
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request following CLAUDE.md guidelines in the repository.
+
+            Focus your review on:
+            - Critical bugs and security vulnerabilities
+            - TypeScript type safety violations (any usage, missing types)
+            - Missing or inadequate tests (TDD compliance is mandatory)
+            - Significant code quality issues
+            - Performance concerns
+
+            Skip: formatting, import ordering, minor style issues (linters handle those).
+
+            Use `gh pr comment` to post your review as a comment on the PR.
+
+            At the end of your review comment, add a footer with:
+            - Model used: claude-3-5-haiku-20241022
+            - Estimated cost (calculate based on tokens used)
+
+            Be concise and focus only on issues that truly matter.
+
+          # Allow Claude to use gh CLI for PR operations
+          claude_args: |
+            --model claude-3-5-haiku-20241022
+            --allowedTools Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)
