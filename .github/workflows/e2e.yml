@@ -64,12 +64,12 @@ jobs:
       # Install Playwright browsers (only if not cached)
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm --filter client exec playwright install --with-deps chromium
 
       # Install only system dependencies if browsers were cached
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+        run: pnpm --filter client exec playwright install-deps chromium
 
       # Build the application
       - name: Build application
