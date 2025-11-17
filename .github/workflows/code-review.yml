@@ -37,6 +37,17 @@ jobs:
           # Checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
 
+      - name: Cache Claude Code dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun
+            ~/.cache/bun
+            ~/.local/share/claude-code
+          key: claude-code-${{ runner.os }}-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            claude-code-${{ runner.os }}-
+
       - name: Get changed files
         id: changed-files
         run: |
@@ -90,24 +101,22 @@ jobs:
           # GitHub token for posting comments
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-          # Use Sonnet (cost-effective model) instead of Opus
-          model: claude-sonnet-3-5-20241022
+          # Use sticky comment (updates same comment instead of creating new ones)
+          use_sticky_comment: true
 
-          # Limit response tokens to control output costs
-          max_tokens: 4000
-
-          # Focus review on changed files only
-          files: ${{ steps.changed-files.outputs.changed_files }}
-
-          # Concise prompt to minimize input tokens
+          # Concise prompt to minimize input tokens and focus review
           prompt: |
-            Review this PR following CLAUDE.md guidelines. Focus on:
-            - Critical bugs and security issues
-            - TypeScript type safety violations
-            - Missing or inadequate tests (TDD compliance)
-            - Code quality issues (not style - linters handle that)
+            Review this PR following CLAUDE.md guidelines. Focus ONLY on:
+            - Critical bugs and security vulnerabilities
+            - TypeScript type safety violations (any usage, missing types)
+            - Missing or inadequate tests (TDD compliance is mandatory)
+            - Significant code quality issues
 
-            Be concise. Only report issues that matter. Skip minor suggestions.
+            Skip: formatting, minor suggestions, style issues (linters handle those).
+            Be concise. Only report issues that truly matter.
+
+            Changed files to review:
+            ${{ steps.changed-files.outputs.changed_files }}
 
       - name: Summary
         run: |
