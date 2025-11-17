@@ -47,6 +47,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Build workspace packages first (required for client build)
+      - name: Build workspace packages
+        run: pnpm nx run-many -t build --projects=@marketplace/database,@marketplace/utils
+
       # Cache Playwright browsers (saves download time)
       - name: Cache Playwright browsers
         uses: actions/cache@v4
