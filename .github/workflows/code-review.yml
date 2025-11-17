@@ -55,10 +55,6 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-          # Bot configuration
-          bot_name: claude[bot]
-          bot_id: 182744526
-
           # Focused prompt for PR review
           prompt: |
             REPO: ${{ github.repository }}
@@ -78,12 +74,12 @@ jobs:
             Use `gh pr comment` to post your review as a comment on the PR.
 
             At the end of your review comment, add a footer with:
-            - Model used: claude-sonnet-3-5-20241022
+            - Model used: claude-haiku-4-5-20251001
             - Estimated cost (calculate based on tokens used)
 
             Be concise and focus only on issues that truly matter.
 
-          # Claude CLI arguments - model and allowed tools
+          # Allow Claude to use gh CLI for PR operations
           claude_args: |
-            --model claude-sonnet-3-5-20241022
-            --allowedTools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"
+            --model claude-haiku-4-5-20251001
+            --allowedTools Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)
