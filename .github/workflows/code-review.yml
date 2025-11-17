@@ -49,11 +49,19 @@ jobs:
             claude-code-${{ runner.os }}-
 
       - name: Claude Code Review
+        id: claude-review
         uses: anthropics/claude-code-action@v1
         with:
           # Authentication
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Use Sonnet 3.5 (cost-effective)
+          claude_args: '--model claude-sonnet-3-5-20241022 --allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+
+          # Bot configuration
+          bot_name: claude[bot]
+          bot_id: 182744526
 
           # Focused prompt for PR review
           prompt: |
@@ -71,8 +79,10 @@ jobs:
 
             Skip: formatting, import ordering, minor style issues (linters handle those).
 
-            Use `gh pr comment` to post your review as a comment on the PR.
-            Be concise and focus only on issues that truly matter.
+            After completing your review, use `gh pr comment` to post your findings as a comment on the PR.
 
-          # Allow Claude to use gh CLI for PR operations
-          claude_args: '--allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+            At the end of your review comment, add a footer with:
+            - Model used: claude-sonnet-3-5-20241022
+            - Estimated cost (you'll calculate based on tokens used)
+
+            Be concise and focus only on issues that truly matter.
