@@ -32,8 +32,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Only fetch the PR changes (not full history) to reduce context size
-          fetch-depth: 1
+          # Fetch more history to find merge base
+          fetch-depth: 0
           # Checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -41,25 +41,45 @@ jobs:
         id: changed-files
         run: |
           # Fetch base branch for comparison
-          git fetch origin ${{ github.event.pull_request.base.ref }} --depth=1
+          git fetch origin ${{ github.event.pull_request.base.ref }}
 
-          # Get only changed files (not full diff)
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+
+          # Check if merge base exists between branches
+          if git merge-base "$BASE_REF" HEAD >/dev/null 2>&1; then
+            echo "✓ Merge base found, comparing changes..."
+            CHANGED_FILES=$(git diff --name-only "$BASE_REF"...HEAD)
+          else
+            echo "⚠️ No merge base found. Using two-dot diff as fallback."
+            # Fallback: use two-dot diff (all changes in HEAD compared to base)
+            CHANGED_FILES=$(git diff --name-only "$BASE_REF"..HEAD 2>/dev/null || git ls-files)
+          fi
+
+          # Filter out empty lines and ensure we have files
+          CHANGED_FILES=$(echo "$CHANGED_FILES" | grep -v '^$' | grep '.' || echo "")
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "⚠️ No changed files detected. Reviewing all source files."
+            CHANGED_FILES=$(git ls-files '*.ts' '*.tsx' '*.js' '*.jsx' | head -20)
+          fi
 
           # Count changed files
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
           echo "file_count=$FILE_COUNT" >> $GITHUB_OUTPUT
 
-          # Limit to first 30 files if PR is too large (cost control)
-          if [ "$FILE_COUNT" -gt 30 ]; then
-            echo "⚠️ PR has $FILE_COUNT changed files. Reviewing only first 30 files to control costs."
-            CHANGED_FILES=$(echo "$CHANGED_FILES" | head -30)
+          # Limit to first 20 files if PR is too large (cost control)
+          if [ "$FILE_COUNT" -gt 20 ]; then
+            echo "⚠️ PR has $FILE_COUNT changed files. Reviewing only first 20 files to control costs."
+            CHANGED_FILES=$(echo "$CHANGED_FILES" | head -20)
           fi
 
           # Create a compact list for review
           echo "changed_files<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "📋 Files to review ($FILE_COUNT total):"
+          echo "$CHANGED_FILES" | head -10
 
       - name: Claude Code Review
         uses: anthropics/claude-code-action@v1
