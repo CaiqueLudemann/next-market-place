@@ -57,9 +57,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
           # Use Sonnet 3.5 (cost-effective)
-          claude_args: >-
-            --model claude-sonnet-3-5-20241022
-            --allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"
+          claude_args: '--model claude-sonnet-3-5-20241022 --allowed-tools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
 
           # Bot configuration
           bot_name: claude[bot]
