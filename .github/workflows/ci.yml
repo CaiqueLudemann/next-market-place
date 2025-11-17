@@ -63,6 +63,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Build workspace packages first (needed for type-checking)
+      - name: Build workspace packages
+        run: pnpm nx run-many -t build --projects=@marketplace/database,@marketplace/utils
+
       # Run linting (only affected projects for efficiency)
       - name: Lint affected projects
         run: pnpm nx affected -t lint --base=origin/main --head=HEAD
@@ -127,6 +131,10 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # Build workspace packages first (required for client build)
+      - name: Build workspace packages
+        run: pnpm nx run-many -t build --projects=@marketplace/database,@marketplace/utils
 
       # Build affected projects
       - name: Build affected projects
