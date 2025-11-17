@@ -32,8 +32,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetch more history to find merge base
-          fetch-depth: 0
+          fetch-depth: 1
           # Checkout the PR head
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -74,12 +73,12 @@ jobs:
             Use `gh pr comment` to post your review as a comment on the PR.
 
             At the end of your review comment, add a footer with:
-            - Model used: claude-haiku-4-5-20251001
+            - Model used: claude-3-5-haiku-20241022
             - Estimated cost (calculate based on tokens used)
 
             Be concise and focus only on issues that truly matter.
 
           # Allow Claude to use gh CLI for PR operations
           claude_args: |
-            --model claude-haiku-4-5-20251001
+            --model claude-3-5-haiku-20241022
             --allowedTools Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)
