@@ -95,10 +95,8 @@ jobs:
       - name: Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
-          # Anthropic API key for Claude
+          # Authentication
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-
-          # GitHub token for posting comments
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
           # Use sticky comment (updates same comment instead of creating new ones)
@@ -106,7 +104,7 @@ jobs:
 
           # Concise prompt to minimize input tokens and focus review
           prompt: |
-            Review this PR following CLAUDE.md guidelines. Focus ONLY on:
+            Review this PR following CLAUDE.md guidelines in the repository. Focus ONLY on:
             - Critical bugs and security vulnerabilities
             - TypeScript type safety violations (any usage, missing types)
             - Missing or inadequate tests (TDD compliance is mandatory)
@@ -115,7 +113,7 @@ jobs:
             Skip: formatting, minor suggestions, style issues (linters handle those).
             Be concise. Only report issues that truly matter.
 
-            Changed files to review:
+            Files changed in this PR:
             ${{ steps.changed-files.outputs.changed_files }}
 
       - name: Summary
