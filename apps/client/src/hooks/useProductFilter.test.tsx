@@ -349,4 +349,74 @@ describe('useProductFilter', () => {
       expect(mockProducts).toHaveLength(4)
     })
   })
+
+  describe('Sorting', () => {
+    it('should sort products by price descending (most expensive first)', () => {
+      const { result } = renderHook(() => useProductFilter(mockProducts))
+
+      act(() => {
+        result.current.handleSortChange('price-desc')
+      })
+
+      expect(result.current.filteredProducts[0]?.name).toBe('Smart Watch') // 19999
+      expect(result.current.filteredProducts[1]?.name).toBe('Wireless Headphones') // 9999
+      expect(result.current.filteredProducts[2]?.name).toBe('Denim Jeans') // 5999
+      expect(result.current.filteredProducts[3]?.name).toBe('Cotton T-Shirt') // 2499
+    })
+
+    it('should sort products by price ascending (cheapest first)', () => {
+      const { result } = renderHook(() => useProductFilter(mockProducts))
+
+      act(() => {
+        result.current.handleSortChange('price-asc')
+      })
+
+      expect(result.current.filteredProducts[0]?.name).toBe('Cotton T-Shirt') // 2499
+      expect(result.current.filteredProducts[1]?.name).toBe('Denim Jeans') // 5999
+      expect(result.current.filteredProducts[2]?.name).toBe('Wireless Headphones') // 9999
+      expect(result.current.filteredProducts[3]?.name).toBe('Smart Watch') // 19999
+    })
+
+    it('should maintain default order when sort is "default"', () => {
+      const { result } = renderHook(() => useProductFilter(mockProducts))
+
+      act(() => {
+        result.current.handleSortChange('default')
+      })
+
+      expect(result.current.filteredProducts[0]?.name).toBe('Wireless Headphones')
+      expect(result.current.filteredProducts[1]?.name).toBe('Smart Watch')
+      expect(result.current.filteredProducts[2]?.name).toBe('Cotton T-Shirt')
+      expect(result.current.filteredProducts[3]?.name).toBe('Denim Jeans')
+    })
+
+    it('should apply sorting after filtering', () => {
+      const { result } = renderHook(() => useProductFilter(mockProducts))
+
+      // Filter by electronics
+      act(() => {
+        result.current.handleCategoryChange('cat-electronics')
+      })
+
+      // Then sort by price ascending
+      act(() => {
+        result.current.handleSortChange('price-asc')
+      })
+
+      expect(result.current.filteredProducts).toHaveLength(2)
+      expect(result.current.filteredProducts[0]?.name).toBe('Wireless Headphones') // 9999
+      expect(result.current.filteredProducts[1]?.name).toBe('Smart Watch') // 19999
+    })
+
+    it('should update sortBy state when handleSortChange is called', () => {
+      const { result } = renderHook(() => useProductFilter(mockProducts))
+
+      expect(result.current.sortBy).toBe('default')
+
+      act(() => {
+        result.current.handleSortChange('price-desc')
+      })
+      expect(result.current.sortBy).toBe('price-desc')
+    })
+  })
 })

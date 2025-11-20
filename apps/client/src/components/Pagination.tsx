@@ -21,8 +21,8 @@ export function Pagination({
   }
 
   const pageNumbers = getPageNumbers(currentPage, totalPages, maxVisible)
-  const showStartEllipsis = pageNumbers[0] > 1
-  const showEndEllipsis = pageNumbers[pageNumbers.length - 1] < totalPages
+  const showStartEllipsis = (pageNumbers[0] ?? 1) > 1
+  const showEndEllipsis = (pageNumbers[pageNumbers.length - 1] ?? totalPages) < totalPages
 
   const handlePrevious = (): void => {
     if (currentPage > 1) {

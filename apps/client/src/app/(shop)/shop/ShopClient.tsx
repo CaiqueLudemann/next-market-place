@@ -5,6 +5,7 @@ import type { Product, ProductCategory } from '@/types/product.types'
 import { ProductCard } from '@/components/ProductCard'
 import { Pagination } from '@/components/Pagination'
 import { SearchWithCategoryFilter } from '@/components/SearchWithCategoryFilter'
+import { ProductSort } from '@/components/ProductSort'
 import { NoResults } from '@/components/NoResults'
 import { useProductFilter } from '@/hooks/useProductFilter'
 import { paginate } from '@/lib/pagination'
@@ -27,24 +28,28 @@ export function ShopClient({
     filteredProducts,
     selectedCategory,
     searchQuery,
+    sortBy,
     handleCategoryChange,
     handleSearchChange,
+    handleSortChange,
   } = useProductFilter(products)
 
   // Track previous filter values to detect changes
-  const prevFiltersRef = useRef({ selectedCategory, searchQuery })
+  const prevFiltersRef = useRef({ selectedCategory, searchQuery, sortBy })
 
-  // Reset to page 1 only when filters actually change
+  // Reset to page 1 only when filters/sort actually change
   useEffect(() => {
     const prevFilters = prevFiltersRef.current
     const filtersChanged =
-      prevFilters.selectedCategory !== selectedCategory || prevFilters.searchQuery !== searchQuery
+      prevFilters.selectedCategory !== selectedCategory ||
+      prevFilters.searchQuery !== searchQuery ||
+      prevFilters.sortBy !== sortBy
 
     if (filtersChanged) {
       setCurrentPage(1)
-      prevFiltersRef.current = { selectedCategory, searchQuery }
+      prevFiltersRef.current = { selectedCategory, searchQuery, sortBy }
     }
-  }, [selectedCategory, searchQuery])
+  }, [selectedCategory, searchQuery, sortBy])
 
   // Paginate the filtered results
   const paginationResult = paginate(filteredProducts, {
@@ -86,12 +91,10 @@ export function ShopClient({
           </p>
         </div>
 
-        {/* Sort by placeholder */}
+        {/* Sort by */}
         {filteredProducts.length > 0 && (
           <div className="flex items-center gap-3">
-            <button className="px-4 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
-              Sort by
-            </button>
+            <ProductSort selectedSort={sortBy} onSortChange={handleSortChange} />
           </div>
         )}
       </div>
