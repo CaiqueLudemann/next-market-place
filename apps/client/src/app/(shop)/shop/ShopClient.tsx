@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Product, ProductCategory } from '@/types/product.types'
 import { ProductCard } from '@/components/ProductCard'
 import { Pagination } from '@/components/Pagination'
@@ -23,8 +23,28 @@ export function ShopClient({
   const [currentPage, setCurrentPage] = useState(1)
 
   // Use the custom filter hook
-  const { filteredProducts, selectedCategory, handleCategoryChange, handleSearchChange } =
-    useProductFilter(products)
+  const {
+    filteredProducts,
+    selectedCategory,
+    searchQuery,
+    handleCategoryChange,
+    handleSearchChange,
+  } = useProductFilter(products)
+
+  // Track previous filter values to detect changes
+  const prevFiltersRef = useRef({ selectedCategory, searchQuery })
+
+  // Reset to page 1 only when filters actually change
+  useEffect(() => {
+    const prevFilters = prevFiltersRef.current
+    const filtersChanged =
+      prevFilters.selectedCategory !== selectedCategory || prevFilters.searchQuery !== searchQuery
+
+    if (filtersChanged) {
+      setCurrentPage(1)
+      prevFiltersRef.current = { selectedCategory, searchQuery }
+    }
+  }, [selectedCategory, searchQuery])
 
   // Paginate the filtered results
   const paginationResult = paginate(filteredProducts, {
@@ -39,25 +59,14 @@ export function ShopClient({
     window.scrollTo({ top: 400, behavior: 'smooth' })
   }
 
-  // Reset to page 1 when filters change
-  const handleCategoryChangeWithReset = (categoryId: string): void => {
-    handleCategoryChange(categoryId)
-    setCurrentPage(1)
-  }
-
-  const handleSearchChangeWithReset = (query: string): void => {
-    handleSearchChange(query)
-    setCurrentPage(1)
-  }
-
   return (
     <>
       {/* Search and Filter Section */}
       <div className="mb-8">
         <SearchWithCategoryFilter
           categories={categories}
-          onSearch={handleSearchChangeWithReset}
-          onCategoryChange={handleCategoryChangeWithReset}
+          onSearch={handleSearchChange}
+          onCategoryChange={handleCategoryChange}
         />
       </div>
 
