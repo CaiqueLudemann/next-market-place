@@ -22,6 +22,17 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
 
+  // Configure external image domains
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+    ],
+  },
+
   // Experimental features
   experimental: {
     // Enable optimized package imports (none configured yet)

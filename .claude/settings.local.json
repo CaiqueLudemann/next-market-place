@@ -1,6 +1,9 @@
 {
   "permissions": {
-    "allow": [],
+    "allow": [
+      "Bash(pnpm test:*)",
+      "Bash(git checkout:*)"
+    ],
     "deny": [],
     "ask": []
   }
