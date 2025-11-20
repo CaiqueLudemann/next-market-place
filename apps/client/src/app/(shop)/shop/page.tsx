@@ -1,8 +1,9 @@
-import { getActiveProducts } from '@/lib/productService'
+import { getActiveProducts, getCategories } from '@/lib/productService'
 import { ShopClient } from './ShopClient'
 
 export default function ShopPage() {
   const products = getActiveProducts()
+  const categories = getCategories()
 
   return (
     <div className="min-h-screen">
@@ -37,32 +38,6 @@ export default function ShopPage() {
               <br />
               Find exactly what you&apos;re looking for.
             </p>
-
-            {/* Search bar placeholder - can be implemented later */}
-            <div className="max-w-xl mx-auto pt-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-neutral-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full pl-12 pr-4 py-4 bg-white border border-neutral-200 rounded-xl shadow-soft focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none"
-                />
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -70,7 +45,7 @@ export default function ShopPage() {
       {/* Products Section */}
       <section className="px-6 pb-16">
         <div className="max-w-7xl mx-auto">
-          <ShopClient products={products} itemsPerPage={12} />
+          <ShopClient products={products} categories={categories} itemsPerPage={12} />
         </div>
       </section>
     </div>

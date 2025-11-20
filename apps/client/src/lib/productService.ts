@@ -3,8 +3,8 @@
  * Currently uses mock data, but can be easily replaced with real API calls
  */
 
-import type { Product } from '@/types/product.types'
-import { generateMockProducts, filterProducts } from './mockProducts'
+import type { Product, ProductCategory } from '@/types/product.types'
+import { generateMockProducts, filterProducts, getMockCategories } from './mockProducts'
 
 // Generate a consistent set of mock products
 // In production, this would be replaced with API calls
@@ -43,4 +43,11 @@ export function searchProducts(query: string): Product[] {
  */
 export function getActiveProducts(): Product[] {
   return filterProducts(MOCK_PRODUCTS, { isActive: true })
+}
+
+/**
+ * Retrieves all product categories
+ */
+export function getCategories(): ProductCategory[] {
+  return getMockCategories()
 }
