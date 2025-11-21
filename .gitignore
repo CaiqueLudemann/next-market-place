@@ -73,3 +73,6 @@ next-env.d.ts
 
 # Claude
 .claude/settings.local.json
+
+# Mock Database (JSON files with user data)
+**/mockdb/*.json
