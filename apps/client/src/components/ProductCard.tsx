@@ -11,7 +11,7 @@ export function ProductCard({ product }: ProductCardProps): React.ReactElement {
   const isInStock = product.stock > 0
 
   return (
-    <Link href={`/shop/products/${product.id}`} className="group block">
+    <Link href={`/products/${product.id}`} className="group block">
       <article className="relative h-full bg-white rounded-2xl border border-neutral-200 overflow-hidden transition-all duration-300 hover:shadow-medium hover:border-primary-200 hover:-translate-y-1">
         {/* Product Image with Overlay */}
         <div className="relative h-56 overflow-hidden bg-neutral-100">

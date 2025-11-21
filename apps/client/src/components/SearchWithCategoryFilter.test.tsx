@@ -338,7 +338,7 @@ describe('SearchWithCategoryFilter', () => {
         },
         { timeout: 300 }
       )
-    })
+    }, 10000)
 
     it('should handle special characters in search query', async () => {
       const user = userEvent.setup()

@@ -1,12 +1,23 @@
 import { getActiveProducts, getCategories } from '@/lib/productService'
 import { ShopClient } from './ShopClient'
+import { getSession } from '@/lib/auth/session'
+import { UserNav } from '@/components/UserNav'
 
-export default function ShopPage() {
+export default async function ShopPage() {
   const products = getActiveProducts()
   const categories = getCategories()
+  const session = await getSession()
 
   return (
     <div className="min-h-screen">
+      {/* Navigation */}
+      <nav className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-primary-600">Marketplace</h1>
+          <UserNav session={session} />
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <section className="relative py-16 px-6 mb-12 overflow-hidden">
         <div className="max-w-7xl mx-auto">

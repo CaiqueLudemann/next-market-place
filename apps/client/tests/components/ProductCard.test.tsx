@@ -68,6 +68,6 @@ describe('ProductCard', () => {
     render(<ProductCard product={mockProduct} />)
 
     const link = screen.getByRole('link')
-    expect(link).toHaveAttribute('href', '/shop/products/test-1')
+    expect(link).toHaveAttribute('href', '/products/test-1')
   })
 })

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm test:*)",
       "Bash(git checkout:*)",
-      "Bash(pnpm exec nx test:*)"
+      "Bash(pnpm exec nx test:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm type-check:*)"
     ],
     "deny": [],
     "ask": []
